@@ -48,7 +48,7 @@
 ## User APIs 
 ### POST /register
 - Create a user document from request body. Request body must contain image.
-- Upload image to S3 bucket and save it's public url in user document.
+- Upload image to s3 bucket and save it's public url in user document.
 - Save password in encrypted format. (use bcrypt)
 - __Response format__
   - _**On success**_ - Return HTTP status 201. Also return the user document. The response should be a JSON object like [this](#successful-response-structure)
