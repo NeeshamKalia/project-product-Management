@@ -77,7 +77,7 @@ const createUser = async function (req, res) {
            const checkUser = await userModel.findById(userId)
     
            if (!checkUser) return res.status(404).send({ status: false, message: "No user found" })
-        
+          //if (checkUser._id.toString() != req.userId) return res.status(401).send({ status: false, message: "unauthorized" })
     
          
     
@@ -88,4 +88,26 @@ const createUser = async function (req, res) {
       }
     }
 
-    module.exports = {createUser, loginUser, getUserById};   
+//--------Update User Profile--------------------////
+
+  const updateUserProfile = async function (req, res) {
+    try {
+      if (Object.keys(req.body).length == 0) { return res.status(400).send({ status: false, msg: "Please enter details in the request Body" }) } 
+      let userId = req.params.userId  
+      const findUserProfile = await userModel.findOne({_id:userId})
+      if(!findUserProfile) { return res.status(404).send({ status: false, msg:"User not found" }) }
+    // --authorization
+  
+    
+    //if(findUserProfile._id != req.userId) { return res.status(404).send({ status: false, msg: "Unauthorized access" }) }
+
+    let {fname, email, password, phone, address, profileImage} = req.body
+    let changedProfile = await userModel.findOneAndUpdate({_id: userId},
+      { $set: {fname: fname, email: email, password: password, phone: phone, address: address, profileImage: profileImage } },
+      {new: true})
+      return res.status(200).send({ status: true, msg: "User profile updated", data: changedProfile})
+      } catch (err) {
+        res.status(500).send({ status: false, message: err.message });
+    }
+  }
+    module.exports = {createUser, loginUser, getUserById, updateUserProfile};   
