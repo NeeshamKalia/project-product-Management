@@ -8,11 +8,11 @@ const checkAuth = function (req, res, next) {
           .status(401)
           .send({ status: false, message: "not authorized" });
           bearerToken = token.split(' ')[1]
-          jwt.verify(bearerToken,"functionup-radon", (err, user) => { if (err) return res.status(401).send({msg: "Unauthorized access"})}); 
+          jwt.verify(bearerToken,"functionup-radon", (err, user) => { if (err) return res.status(401).send({message: "Unauthorized access"})}); 
           //req.user = user;
           let decodedToken = jwt.verify(bearerToken, "functionup-radon");
           if (decodedToken.length ==0){
-            return res.status(404).send({ status: false, msg: "token is not valid" })};
+            return res.status(404).send({ status: false, message: "token is not valid" })};
            if (Date.now() > bearerToken.exp * 1000) {
             return res
               .status(401)
@@ -37,7 +37,7 @@ const checkAuth = function (req, res, next) {
       
       let userId = req.params.userId;
      
-      if (userId.toString() != decodedToken.userId) {return res.status(401).send({status: false, message: "unauthorized"});}
+      if (userId.toString() != decodedToken.userId) {return res.status(403).send({status: false, message: "unauthorized"});}
       next();
     }
    

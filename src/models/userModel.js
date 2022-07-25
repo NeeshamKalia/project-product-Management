@@ -20,14 +20,15 @@ const userSchema = new mongoose.Schema(
     },
     profileImage: {
       type: String,                     
-      required: true
+      required: true,
+      trim: true
     }, 
     phone: {
       type: String,
       required: true,
       trim: true,
       unique: true
-    }, //Indian mobile
+    }, 
     password: {
       type: String,
       required: true,
