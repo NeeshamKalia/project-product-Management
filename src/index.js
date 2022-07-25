@@ -1,11 +1,11 @@
 const express = require("express");
 
-const route = require("./routes/route.js");
+const route = require("./route/route.js");
 const mongoose  = require("mongoose");
 const app = express();
+let bodyParser = require('body-parser');
 
-
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}))
 
 
@@ -13,8 +13,7 @@ mongoose
   .connect(
     "mongodb+srv://neesh:E8DNG8XaM4rrzJCV@cluster0.vlwog.mongodb.net/group54Database",
     {
-      useNewUrlParser: true, useUnifiedTopology: true 
-    }
+      useNewUrlParser: true}
   )
   .then(() => console.log("Connected with MongoDB"))
   .catch((err) => console.log(err));
