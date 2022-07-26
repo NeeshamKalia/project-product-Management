@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const checkAuth = function (req, res, next) {
     try {
       let token = req.header('Authorization', 'Bearer Token');
@@ -36,7 +37,8 @@ const checkAuth = function (req, res, next) {
       let decodedToken = jwt.verify(bearerToken, "functionup-radon");
       
       let userId = req.params.userId;
-     
+      if(!userId){ return res.status(400).send({status:false,message:"UserId is required"})}
+      if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, message: "invalid userId" }) }
       if (userId.toString() != decodedToken.userId) {return res.status(403).send({status: false, message: "unauthorized"});}
       next();
     }
