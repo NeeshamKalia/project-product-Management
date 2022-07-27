@@ -54,7 +54,7 @@ const createUser = async function (req, res) {
      return res.status(400).send({status:false, message: "profileImage is required"})
   } 
 
-  //if(!isImage(files[0]))return res.status(400).send({status:false, message: "profilege is required"})
+ 
   //profileImage
   //if(!profileImage) { return res.status(400).send({ status: false, message: "Please enter a profile image" }) }
   //if(profileImage.length == 0){
@@ -66,13 +66,9 @@ const createUser = async function (req, res) {
        let imageRegex = /^https?:\/\/(.+\/)+.+(\.(gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|jfif))$/i;
         return imageRegex.test(img)
             }
-  const fileValidation = async (file) => {
-        const isValidImage = await validateImage(file);
-      return (isValidImage);
-              };
+  
                 */
-  //if(!fileValidation(profileImage)) { return res.status(400).send({ status: false, message: "Please enter valid img"})}
- 
+  
   profileImage = await config.uploadFile(files[0]) 
 
   //address
@@ -272,108 +268,105 @@ if(phone)
  if(phoneAlreadyExists) { return res.status(400).send({status: false, message: "phone number already exists" }) }
 
  if (!(/^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/.test(phone))){ return res.status(400).send({status: false, message: "phone number not valid" }); }}
+ 
  if(password){
  if(!validation.isValid(password)) { return res.status(400).send({ status: false, message: "Please enter a valid password" }) }
  if(password.length > 15 || password.length < 8) { return res.status(400).send({status: false, message: "password should be between 15 and 8 characters" }) }
+ const saltRounds = 10;
+ var encryptedPassword = await bcrypt.hash(password, saltRounds) //encrypting password by using bcrypt.
  }
+ if (files) {
+  if (validation.isValidRequestBody(files)) {
+      if (!(files && files.length > 0)) {
+          return res.status(400).send({ status: false, message: "please provide profile image" })
+      }
+      var updatedProfileImage = await config.uploadFile(files[0])
+  }
+}
 
-if(profileImage){
-if(!validation.isValidRequestBody(files)){
-   return res.status(400).send({status:false, message: "profileImage is required"})
-} 
 
-profileImage = await config.uploadFile(files[0]) }
+
 
 //address
 
 if (address) {
-  
 
+  //converting shipping address to string them parsing it.
+  let shippingAddressToString = JSON.stringify(address)
+  let parsedShippingAddress = JSON.parse(shippingAddressToString)
 
-if (typeof  address != "object") {
-  return res.status(400).send({ status: false, message: "address should be an object" })
+  if (validator.isValidRequestBody(parsedShippingAddress)) {
+      if (parsedShippingAddress.hasOwnProperty('shipping')) {
+          if (parsedShippingAddress.shipping.hasOwnProperty('street')) {
+              if (!validator.isValid(parsedShippingAddress.shipping.street)) {
+                  return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's Street" });
+              }
+          }
+          if (parsedShippingAddress.shipping.hasOwnProperty('city')) {
+              if (!validator.isValid(parsedShippingAddress.shipping.city)) {
+                  return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's City" });
+              }
+          }
+          if (parsedShippingAddress.shipping.hasOwnProperty('pincode')) {
+              if (!validator.isValid(parsedShippingAddress.shipping.pincode)) {
+                  return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's pincode" });
+              }
+          }
+
+          //using var to use these variables outside this If block.
+          var shippingStreet = address.shipping.street
+          var shippingCity = address.shipping.city
+          var shippingPincode = address.shipping.pincode
+      }
+  } else {
+      return res.status(400).send({ status: false, message: " Invalid request parameters. Shipping address cannot be empty" });
+  }
 }
-//data.address = JSON.parse(data.address)
+if (address) {
 
+  //converting billing address to string them parsing it.
+  let billingAddressToString = JSON.stringify(address)
+  let parsedBillingAddress = JSON.parse(billingAddressToString)
 
-// this validation will check the address is in the object format or not
+  if (validator.isValidRequestBody(parsedBillingAddress)) {
+      if (parsedBillingAddress.hasOwnProperty('billing')) {
+          if (parsedBillingAddress.billing.hasOwnProperty('street')) {
+              if (!validator.isValid(parsedBillingAddress.billing.street)) {
+                  return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's Street" });
+              }
+          }
+          if (parsedBillingAddress.billing.hasOwnProperty('city')) {
+              if (!validator.isValid(parsedBillingAddress.billing.city)) {
+                  return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's City" });
+              }
+          }
+          if (parsedBillingAddress.billing.hasOwnProperty('pincode')) {
+              if (!validator.isValid(parsedBillingAddress.billing.pincode)) {
+                  return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's pincode" });
+              }
+          }
 
-
-let { shipping, billing } = data.address        //destructuring
-if (!validation.isValidRequestBody(data.address)){
-  return res.status(400).send({status:false,message:"No keys are present in address"})
-}
-if (shipping) {
-
-
-if (typeof shipping != "object") {
-return res.status(400).send({ status: false, message: "shipping should be an object" })
-}
-//Shipping field validation==>
-if (!validation.isValid(shipping.street)) {
-return res.status(400).send({ status: false, message: "shipping street is required" })
-}
-if (!validation.isValid(shipping.city)) {
-return res.status(400).send({ status: false, message: "shipping city is required" })
-}
-
-if (!/^[a-zA-Z]+$/.test(shipping.city)) {
-return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
-}
-
-if (!validation.isValid(shipping.pincode)) {
-return res.status(400).send({ status: false, message: "shipping pincode is required" })
-}
-//pincode
-
-if (!/^\d{6}$/.test(shipping.pincode)) {
-return res.status(400).send({ status: false, message: "plz enter valid shipping pincode" });
-}}
-//billing address
-
-if (billing) {
-
-
-
-if (typeof billing != "object") {
-return res.status(400).send({ status: false, message: "billing should be an object" })
-}
-//Billing Field validation==>
-if (!validation.isValid(billing.street)) {
-return res.status(400).send({ status: false, message: "billing street is required" })
+          //using var to use these variables outside this If block.
+          var billingStreet = address.billing.street
+          var billingCity = address.billing.city
+          var billingPincode = address.billing.pincode
+      }
+  } else {
+      return res.status(400).send({ status: false, message: " Invalid request parameters. Billing address cannot be empty" });
+  }
 }
 
-if (!validation.isValid(billing.city)) {
-return res.status(400).send({ status: false, message: "billing city is required" })
-}
-if (!/^[a-zA-Z]+$/.test(billing.city)) {
-return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
-}
 
-if (!validation.isValid(billing.pincode)) {
-return res.status(400).send({ status: false, message: "billing pincode is required" })
-}
+let changedProfile = await userModel.findOneAndUpdate({_id: userId},
+      { $set: {fname: fname, lname: lname, email: email, password: encryptedPassword, phone: phone,profileImage: updatedProfileImage,
+        'address.shipping.street': shippingStreet,
+        'address.shipping.city': shippingCity,
+        'address.shipping.pincode': shippingPincode,
+        'address.billing.street': billingStreet,
+        'address.billing.city': billingCity,
+        'address.billing.pincode': billingPincode
 
-//applicable only for numeric values and extend to be 6 characters only
-
-if (!/^\d{6}$/.test(billing.pincode)) {
-return res.status(400).send({ status: false, message: "Enter a valid  billing pincode"}); }}}
-
-const saltRounds = 10;
-const encryptedPassword = await bcrypt.hash(password, saltRounds) //encrypting password by using bcrypt.
-
-
-
-   
-
-
-
-
-
-
-
-    let changedProfile = await userModel.findOneAndUpdate({_id: userId},
-      { $set: {fname: fname, lname: lname, email: email, password: encryptedPassword, phone: phone, address: address, profileImage: profileImage } },
+        } },
       {new: true})
       return res.status(200).send({ status: true, message: "User profile updated", data: changedProfile})
       } catch (err) {
