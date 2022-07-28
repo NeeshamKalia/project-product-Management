@@ -53,7 +53,7 @@ if(!findThatCart){
 const getCartById = async function(req,res){
     try{
         let userId = req.params.userId
-         const findUser = await userModel.findById(userId)
+         const findUser = await userModel.findOne({_id:userId, isDeleted:false})
         if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};
      
     const validCart = await cartModel.findOne({userId: userId})
@@ -69,7 +69,7 @@ const getCartById = async function(req,res){
 const deleteCart = async function(req,res){
     try{
         let userId = req.params.userId;
-        const findUser = await userModel.findById(userId)
+        const findUser = await userModel.findOne({_id:userId, isDeleted:false})
         if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};  
     
     const validCart = await cartModel.findOne({userId: userId, totalPrice: {$gt:0}})

@@ -18,9 +18,9 @@ router.put("/products/:productId",  updateProduct);
 router.delete("/products/:productId",  deleteProduct);
 //cart api's
 router.post("/users/:userId/cart", checkAuth, authrz, createCart);
-router.get("/users/:userId/cart",  getCartById);
+router.get("/users/:userId/cart",checkAuth, authrz getCartById);
 //router.put("/users/:userId/cart",  updateCart);
-router.delete("/users/:userId/cart",  deleteCart);
+router.delete("/users/:userId/cart",checkAuth, authrz, deleteCart);
 
 
 
