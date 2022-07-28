@@ -13,7 +13,7 @@ router.put("/user/:userId/profile", checkAuth, authrz, updateUserProfile)
 router.post("/products",  createProduct);
 router.get("/products",  getProducts);
 router.get("/products/:productId",  productById);
-//router.put("/products/:productId",  updateProduct);
+router.put("/products/:productId",  updateProduct);
 router.delete("/products/:productId",  deleteProduct);
 
 
