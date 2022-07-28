@@ -9,7 +9,7 @@ const {createCart, getCartById, updateCart, deleteCart} = require('../controller
 router.post("/register",  createUser);
 router.post("/login", loginUser)
 router.get("/user/:userId/profile", checkAuth, authrz, getUserById)
-router.put("/user/:userId/profile",  updateUserProfile)
+router.put("/user/:userId/profile", checkAuth, authrz, updateUserProfile)
 //product api's
 router.post("/products",  createProduct);
 router.get("/products",  getProducts);
@@ -18,9 +18,9 @@ router.put("/products/:productId",  updateProduct);
 router.delete("/products/:productId",  deleteProduct);
 //cart api's
 router.post("/users/:userId/cart", checkAuth, authrz, createCart);
-//router.get("/users/:userId/cart",  getCartById);
+router.get("/users/:userId/cart",  getCartById);
 //router.put("/users/:userId/cart",  updateCart);
-//router.delete("/users/:userId/cart",  deleteCart);
+router.delete("/users/:userId/cart",  deleteCart);
 
 
 

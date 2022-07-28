@@ -36,10 +36,52 @@ if(!findThatCart){
     let cartCreated = await cartModel.create(cart)
     return res.status(201).send({status: true, message:"Success" , data: cartCreated}) }
 //if(findThatCart){
-
-
-
+         // if(product) => product ++, price ++, quantity +=1
+         //(!product) => items.push(productId, quanity), price ++ quantiy +=1
+         //return findThatCart
+     /* for(n in findThatCart.items){
+        if(n === productId){
+                console.log(n, quantity, quanity,
+ */
 }catch (error) {
+        res.status(500).send({ status: false, message: error.message })
+      }
+    }
+
+//------getCartById-----------------------------------------------------------------------
+
+const getCartById = async function(req,res){
+    try{
+        let userId = req.params.userId
+         const findUser = await userModel.findById(userId)
+        if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};
+     
+    const validCart = await cartModel.findOne({userId: userId})
+    if(!validCart){return res.status(400).send({status: false, message: 'cart not found'});}
+
+    return res.status(200).send({status: true, message: "Lala Land", data: validCart})
+    }catch (error) {
+        res.status(500).send({ status: false, message: error.message })
+      }
+    }
+//------------------delete Cart-------------------------------------
+
+const deleteCart = async function(req,res){
+    try{
+        let userId = req.params.userId;
+        const findUser = await userModel.findById(userId)
+        if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};  
+    
+    const validCart = await cartModel.findOne({userId: userId, totalPrice: {$gt:0}})
+    if(!validCart){return res.status(404).send({status: false, message: 'cart not found or deleted'});}
+    console.log(validCart);
+    const cartDelete = await cartModel.findOneAndUpdate({userId: userId}, {$set: {totalPrice: 0, totalItems: 0, items:[]}}, {new: true})
+   return res.status(200).send({status: true, message: "Cart deleted Successfully"})
+
+
+
+
+    }catch (error) {
         res.status(500).send({ status: false, message: error.message })
       }
     }
@@ -65,11 +107,7 @@ if(!findThatCart){
 
 
 
+module.exports = {createCart,getCartById, deleteCart}
 
 
-
-
-module.exports = {createCart,}
-
-
-// getCartById, updateCart, deleteCart
+// , updateCart, 
