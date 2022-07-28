@@ -53,23 +53,8 @@ const createUser = async function (req, res) {
   if(!validation.isValidRequestBody(files)){
      return res.status(400).send({status:false, message: "profileImage is required"})
   } 
-
- 
-  //profileImage
-  //if(!profileImage) { return res.status(400).send({ status: false, message: "Please enter a profile image" }) }
-  //if(profileImage.length == 0){
-            //return res.status(400).send({ status: false, message: "upload profile image" })};
-  /* if (profileImage.length > 1){
-            return res.status(400).send({ status: false, message: "only one image at a time" })} */
-
-    /* let checkImage = (img) => {
-       let imageRegex = /^https?:\/\/(.+\/)+.+(\.(gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|jfif))$/i;
-        return imageRegex.test(img)
-            }
   
-                */
-  
-  profileImage = await config.uploadFile(files[0]) 
+profileImage = await config.uploadFile(files[0])
 
   //address
   
@@ -134,7 +119,7 @@ if (!validation.isValid(billing.street)) {
 if (!validation.isValid(billing.city)) {
   return res.status(400).send({ status: false, message: "billing city is required" })
 }
-if (!/^[a-zA-Z]+$/.test(billing.city)) {
+if (!/^[1-9][0-9]{5}$/.test(billing.city)) {
   return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
 }
 
@@ -144,7 +129,7 @@ if (!validation.isValid(billing.pincode)) {
 
 //applicable only for numeric values and extend to be 6 characters only
 
-if (!/^\d{6}$/.test(billing.pincode)) {
+if (!/^[1-9][0-9]{5}$/.test(billing.pincode)) {
   return res.status(400).send({ status: false, message: "Enter a valid  billing pincode"}); }
 
 const saltRounds = 10;
@@ -295,24 +280,32 @@ if (address) {
   let shippingAddressToString = JSON.stringify(address)
   let parsedShippingAddress = JSON.parse(shippingAddressToString)
 
-  if (validator.isValidRequestBody(parsedShippingAddress)) {
+  if (validation.isValidRequestBody(parsedShippingAddress)) {
       if (parsedShippingAddress.hasOwnProperty('shipping')) {
           if (parsedShippingAddress.shipping.hasOwnProperty('street')) {
-              if (!validator.isValid(parsedShippingAddress.shipping.street)) {
+              if (!validation.isValid(parsedShippingAddress.shipping.street)) {
                   return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's Street" });
               }
           }
           if (parsedShippingAddress.shipping.hasOwnProperty('city')) {
-              if (!validator.isValid(parsedShippingAddress.shipping.city)) {
+              if (!validation.isValid(parsedShippingAddress.shipping.city)) {
                   return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's City" });
               }
+              if (!/^[a-zA-Z]+$/.test(parsedShippingAddress.shipping.city)) {
+                return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
+              }
+
           }
           if (parsedShippingAddress.shipping.hasOwnProperty('pincode')) {
-              if (!validator.isValid(parsedShippingAddress.shipping.pincode)) {
+              if (!validation.isValid(parsedShippingAddress.shipping.pincode)) {
                   return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's pincode" });
+                 
+              }
+              if (!(/^[1-9][0-9]{5}$/).test(parsedShippingAddress.shipping.pincode)) {
+                return res.status(400).send({ status: false, message: "please enter valid shipping pincode" });
               }
           }
-
+          
           //using var to use these variables outside this If block.
           var shippingStreet = address.shipping.street
           var shippingCity = address.shipping.city
@@ -328,21 +321,27 @@ if (address) {
   let billingAddressToString = JSON.stringify(address)
   let parsedBillingAddress = JSON.parse(billingAddressToString)
 
-  if (validator.isValidRequestBody(parsedBillingAddress)) {
+  if (validation.isValidRequestBody(parsedBillingAddress)) {
       if (parsedBillingAddress.hasOwnProperty('billing')) {
           if (parsedBillingAddress.billing.hasOwnProperty('street')) {
-              if (!validator.isValid(parsedBillingAddress.billing.street)) {
+              if (!validation.isValid(parsedBillingAddress.billing.street)) {
                   return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's Street" });
               }
           }
           if (parsedBillingAddress.billing.hasOwnProperty('city')) {
-              if (!validator.isValid(parsedBillingAddress.billing.city)) {
+              if (!validation.isValid(parsedBillingAddress.billing.city)) {
                   return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's City" });
+              }
+              if (!/^[a-zA-Z]+$/.test(parsedBillingAddress.billing.city)) {
+                return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
               }
           }
           if (parsedBillingAddress.billing.hasOwnProperty('pincode')) {
-              if (!validator.isValid(parsedBillingAddress.billing.pincode)) {
+              if (!validation.isValid(parsedBillingAddress.billing.pincode)) {
                   return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's pincode" });
+              }
+              if (!(/^[1-9][0-9]{5}$/).test(parsedShippingAddress.shipping.pincode)) {
+                return res.status(400).send({ status: false, message: "please enter valid shipping pincode" });
               }
           }
 

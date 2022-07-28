@@ -272,16 +272,18 @@ if (!validation.isValidRequestBody(req.body))
     if(!validation.isValid(availableSizes))  {return res.status(400).send({status:false, message: "required availableSizes "})}
     
     sizes = availableSizes.split(',').map(a => a.trim())
-    
-     for(let i = 0; i < sizes.length; i++) {
-    
-        if(!(["S", "XS","M","X", "L","XXL", "XL"] ).includes(sizes[i])){
-    
-          return res.send({status: false, message: "sizes should be from S,XS,M,X,L,XXL, XL"})
-        }
-     }
-     productUpdate.availableSizes = { $push: {availableSizes:sizes} }
-      }
+     let allSige=product.availableSizes 
+     for(let i = 0; i < sizes.length; i++) 
+     {
+       if(!(["S", "XS","M","X", "L","XXL", "XL"] ).includes(sizes[i])){ 
+             return res.send({status: false, message: "sizes should be from S,XS,M,X,L,XXL, XL"}) } 
+      else if(allSige.includes(sizes[i])){
+        continue} 
+        else {allSige.push(sizes[i])} } 
+        productUpdate.availableSizes = allSige } 
+
+
+      
     // ==============================================PRODUCT-IMAGE VALIDATION========================================//
    if(req.files && (req.files).length > 0){ 
     if(!validation.isValidRequestBody(req.files)){
