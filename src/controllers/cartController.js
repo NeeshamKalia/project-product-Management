@@ -21,14 +21,14 @@ if(!validation.isValid(quantity)){ return res.status(400).send({ status: false, 
 const findThatUser = await userModel.findOne({_id: userId}) 
 if(!findThatUser){ return res.status(404).send({ status: false, message: "user not found" }) }
 // if product exists
-const findThatProduct = await productModel.findOne({_id: productId, isDeleted: false}).select({_id:0})
+const findThatProduct = await productModel.findOne({_id: productId, isDeleted: false})
 if(!findThatProduct) { return res.status(404).send({ status: false, message: "product not found or deleted" }); }
 //if cart already exists
 const findThatCart = await cartModel.findOne({userId: userId, isDeleted: false})
 if(!findThatCart){ 
     const cart = {
         userId: userId,
-        items: [{productId: productId, quantity: quantity}],
+        items: [{productId: findThatProduct._id, quantity: quantity}],
         
         totalPrice: findThatProduct.price * quantity,
         totalItems: 1 
@@ -45,7 +45,8 @@ if(findThatCart){
             existedItems.quantity += quantity
         let updatedCart = {items: existedItems, totalPrice: price, quantity: existedItems.length}
         
-        let newCart = await cartModel.findOneAndUpdate({_id:findThatCart._id},{$set:updatedCart},{new: true})
+        //let newCart = await cartModel.findOneAndUpdate({_id:findThatCart._id},{$inc:{}},{$set:updatedCart},{new: true})
+        let newCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: price } }, { new: true }) 
         
         return res.status(201).send({status: true, message:"Product added Successfully", data: newCart});
     }
@@ -53,7 +54,7 @@ if(findThatCart){
 existedItems.push({productId: productId, quantity: quantity});
 let updateCart = {items: existedItems, totalPrice: price, quantity: existedItems.length}
 let finalData = await cartModel.findOneAndUpdate({_id: findThatCart._id},updateCart,{new: true});
-return res.status(201).send({status: true, message:"Product added Successfully", data: finalData});
+return res.status(201).send({status: true, message:"Product added successfully", data: finalData});
          // if(product) => product ++, price ++, quantity +=1
          //(!product) => items.push(productId, quanity), price ++ quantiy +=1
          //return findThatCart

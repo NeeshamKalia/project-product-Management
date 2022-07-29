@@ -103,12 +103,22 @@ const getProducts = async function (req, res) {
     filter['title'] = {}
     filter['title']['$regex'] = name;
     filter['title']['$options'] = 'i'
-  } 
-  if(size){
-    if(!validation.isValid(size)){ return res.status(400).send({ status: false, message: "Please enter a valid size" }) }
-    //size = size.split(',').map(a => a.trim()) 
-    filter['availableSizes'] = size;  
   }
+ 
+  if (Object.keys(queryData).length > 0) {
+     if (size) { let size1 = size.split(",").map(x => x.trim().toUpperCase()) 
+     if (size1.map(x => validation.isValid(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be among S,XS,M,X,L,XXL,XL" }) 
+     filter.availableSizes = { $in: size1 } } }
+
+
+
+
+
+  /* if(size){
+    if(!validation.isValid(size)){ return res.status(400).send({ status: false, message: "Please enter a valid size" }) }
+    size = size.toUpperCase().split(',').map(a => a.trim()) 
+    filter['availableSizes'] = size;  
+  } */
   if(priceGreaterThan){
     if(!validation.isValid(priceGreaterThan)){return res.status(400).send({ status: false, message: "Please enter a price greater than" }) }
     if(!(isNum(priceGreaterThan))){return res.status(400).send({ status: false, message: "Please enter a number in priceGreaterThan" })}
