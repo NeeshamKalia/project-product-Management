@@ -17,10 +17,10 @@ router.get("/products/:productId",  productById);
 router.put("/products/:productId",  updateProduct);
 router.delete("/products/:productId",  deleteProduct);
 //cart api's
-router.post("/users/:userId/cart", checkAuth, authrz, createCart);
-router.get("/users/:userId/cart",checkAuth, authrz, getCartById);
+router.post("/users/:userId/cart",  createCart); //checkAuth, authrz,
+router.get("/users/:userId/cart", getCartById);  //checkAuth, authrz,
 //router.put("/users/:userId/cart",  updateCart);
-router.delete("/users/:userId/cart",checkAuth, authrz, deleteCart);
+router.delete("/users/:userId/cart", deleteCart);  //checkAuth, authrz,
 
 
 

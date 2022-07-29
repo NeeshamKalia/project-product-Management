@@ -92,11 +92,11 @@ const getProducts = async function (req, res) {
           
     const queryData = req.query
           
-    if (!validation.isValidRequestBody(req.query)) { return res.status(400).send({ status: false, message: "Please enter details"}) }
+    /* if (!validation.isValidRequestBody(req.query)) { return res.status(400).send({ status: false, message: "Please enter details"}) } */
     let filter = { isDeleted: false }
     let { size,name,priceGreaterThan,priceLessThan,priceSort} = queryData
     
-  if(name){
+  if(name){   
     if(!validation.isValid(name)){
       return res.status(400).send({status: false, message: "Please enter name correctly"})
     }
@@ -107,8 +107,7 @@ const getProducts = async function (req, res) {
   if(size){
     if(!validation.isValid(size)){ return res.status(400).send({ status: false, message: "Please enter a valid size" }) }
     //size = size.split(',').map(a => a.trim()) 
-    filter['availableSizes'] = size;  //find that have all the elements in availableSizes array
-    //console.log(filter['availableSizes']);
+    filter['availableSizes'] = size;  
   }
   if(priceGreaterThan){
     if(!validation.isValid(priceGreaterThan)){return res.status(400).send({ status: false, message: "Please enter a price greater than" }) }
@@ -203,8 +202,7 @@ if (!validation.isValidRequestBody(req.body))
     }
      productUpdate.description= description
   }
-    
-    // ====================================================PRICE VALIDATION ===============================//
+    //PRICE VALIDATION 
     
     
   if(price) {
@@ -221,7 +219,7 @@ if (!validation.isValidRequestBody(req.body))
       productUpdate.price = price
     }
     if(currencyId){
-      // ==========================================CURRENCYID VALIDATION =====================================//
+      //CURRENCYID VALIDATION 
     if(!validation.isValid(currencyId))  {
       return res.status(400).send({status:false, message: "needs currencyId"})
     }
@@ -239,7 +237,7 @@ if (!validation.isValidRequestBody(req.body))
     }
     productUpdate.currencyFormat = currencyFormat
   }
-    // ============================================= if STYLE======================================================//
+    //if STYLE
   if(style){
     if(!validation.isValid(style))  {
       return res.status(400).send({status:false, message: "style required"})
@@ -247,7 +245,7 @@ if (!validation.isValidRequestBody(req.body))
     productUpdate.style = style
   }
   
-    // ============================================== if ISFREESHIPPING=======================================//
+    //if ISFREESHIPPING
    if(isFreeShipping) {
     if(!validation.isValid(isFreeShipping))  {
       return res.status(400).send({status:false, message: "isFreeShipping is required"})
@@ -258,7 +256,7 @@ if (!validation.isValidRequestBody(req.body))
     }
     productUpdate.isFreeShipping = isFreeShipping
   }
-    //=============================================INSTALLMENTS VALIDATION============================================//
+    //INSTALLMENTS VALIDATION
    if(installments){   
     if (isNum(installments) === true){
          if(installments <= 1){
@@ -267,7 +265,7 @@ if (!validation.isValidRequestBody(req.body))
       else {return res.status(400).send({status:false, message: "installments  be a natural number, more than 1"})}
       productUpdate.installments = installments
         }
-      // =======================================SIZE VALIDATION================================================//
+      //SIZE VALIDATION
       if(availableSizes){
     if(!validation.isValid(availableSizes))  {return res.status(400).send({status:false, message: "required availableSizes "})}
     
@@ -284,7 +282,7 @@ if (!validation.isValidRequestBody(req.body))
 
 
       
-    // ==============================================PRODUCT-IMAGE VALIDATION========================================//
+    //PRODUCT-IMAGE VALIDATION
    if(req.files && (req.files).length > 0){ 
     if(!validation.isValidRequestBody(req.files)){
       return res.status(400).send({status:false, message: "productImage is required"})
@@ -324,6 +322,7 @@ const deleteProduct = async function(req, res) {
     {$set: {isDeleted: true, deletedAt: Date.now()}},
     {new: true})
   return res.status(200).send({status: true, message: "Product deleted successfully"})
+
   }catch (error) {
     res.status(500).send({ status: false, message: error.message })
   }
