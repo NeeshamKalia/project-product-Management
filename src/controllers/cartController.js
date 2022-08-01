@@ -46,7 +46,7 @@ if(findThatCart){
     let price = findThatCart.totalPrice + (quantity * findThatProduct.price)
     let existedItems = findThatCart.items
     for(let i in existedItems){
-        if(existedItems[i].productId.toString() === productId){
+        if(existedItems[i].productId === productId){  //toString()
             existedItems[i].quantity += quantity
         let updatedCart = {items: existedItems, totalPrice: price, totalItems: existedItems.length}
         
@@ -86,21 +86,56 @@ const updateCart = async function (req, res) {
       if(!product){
         return res.status(400).send({status: false, message: "Product doesn't exists or deleted"})}
 if(cartId){
-     if(!validation.isValidObjectId(cartId)){return res.status(400).send({status: false, message: 'Invalid cart ID'})};
+     if(!validation.isValidObjectId(cartId)){return res.status(400).send({status: false, message: 'Invalid cart ID'})}}
     const findThatCart = await cartModel.findOne({userId: userId});
-    if(!findThatCart){ return res.status(400).send({status: false, message: "this cart  doesn't exists"})}
-  }
+    if(!findThatCart){ return res.status(400).send({status: false, message: "this cart  doesn't exists from this user"})}
+  
 
   if(!validation.isValid(removeProduct)){return res.status(400).send({status: false, message: "removeProduct invalid"})}
   if(!(isNum(removeProduct)))return res.status(400).send({status: false, message: "removeProduct must be number"})
   if(!((removeProduct == 1) || (removeProduct == 0)))return res.status(400).send({status: false, message: "removeProduct can be 0 or 1"})
 
-  //findThatCart.productId != productId => product doesn't exist in cart
-  if(findThatCart.productId.toString() != productId)return res.status(404).send({status: false, message: "Product does not exist in cart"}) 
-if(removeProduct === 0){
-  //let newAmount = findThatCart.totalPrice - product.price * findThatCart.items[(items.indexOf(quantity)]
+  
+ //finding if products exits in cart
+ let productInCart = await cartModel.findOne({items: { $elemMatch: { productId: productId } } })
+ if (!productInCart) {
+     return res.status(400).send({ status: false, message: "This product does not exists in the cart" })
+ }
 
+  findQuantity = findThatCart.items.find(x => x.productId.toString() == productId);
+  if (removeProduct === 0) {
+    let totalAmount = findThatCart.totalPrice - (product.price * findQuantity.quantity) // substract the amount of product*quantity
+
+    await cartModel.findOneAndUpdate({ _id: cartId }, { $pull: { items: { productId: productId } } }, { new: true })
+
+    let quantity = findThatCart.totalItems - 1
+    let data = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { totalPrice: totalAmount, totalItems: quantity } }, { new: true }) //update the cart with total items and totalprice
+
+    return res.status(200).send({ status: true, message: `${productId} is been removed`, data: data })
 }
+
+// decrement quantity
+let totalAmount = findThatCart.totalPrice - product.price
+let itemsArr = findThatCart.items
+
+for (i in itemsArr) {
+    if (itemsArr[i].productId == productId) {  //tostring 
+        itemsArr[i].quantity = itemsArr[i].quantity - 1
+
+        if (itemsArr[i].quantity < 1) {
+            await cartModel.findOneAndUpdate({ _id: cartId }, { $pull: { items: { productId: productId } } }, { new: true })
+            let quantity = findThatCart.totalItems - 1
+
+            let data = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { totalPrice: totalAmount, totalItems: quantity } },
+                { new: true }) //update the cart with total items and totalprice
+
+            return res.status(200).send({ status: true, message: `No such quantity/product exist in cart`, data: data })
+        }
+    }
+}
+let data = await cartModel.findOneAndUpdate({userId: userId }, { items: itemsArr, totalPrice: totalAmount }, { new: true })
+
+return res.status(200).send({ status: true, message: `${productId} quantity is been reduced By 1`, data: data })
 
 
 
@@ -170,7 +205,6 @@ const deleteCart = async function(req,res){
 
 
 
-module.exports = {createCart,getCartById, deleteCart}
+module.exports = {createCart,getCartById, updateCart, deleteCart}
 
 
-// , updateCart, 
