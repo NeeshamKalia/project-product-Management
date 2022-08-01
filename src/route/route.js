@@ -18,13 +18,13 @@ router.get("/products/:productId",  productById);
 router.put("/products/:productId",  updateProduct);
 router.delete("/products/:productId",  deleteProduct);
 //cart api's
-router.post("/users/:userId/cart",  createCart); //checkAuth, authrz,
-router.get("/users/:userId/cart", getCartById);  //checkAuth, authrz,
-//router.put("/users/:userId/cart",  updateCart);
-router.delete("/users/:userId/cart", deleteCart);  //checkAuth, authrz,
+router.post("/users/:userId/cart",checkAuth, authrz,  createCart); 
+router.get("/users/:userId/cart", checkAuth, authrz,getCartById); 
+router.put("/users/:userId/cart",checkAuth, authrz,  updateCart);
+router.delete("/users/:userId/cart", checkAuth, authrz,deleteCart);  
 // order api's
-router.post("/users/:userId/orders",  orderCreate); //checkAuth, authrz,
-router.put("/users/:userId/orders",  orderUpdate); //checkAuth, authrz,
+router.post("/users/:userId/orders", checkAuth, authrz, orderCreate); 
+router.put("/users/:userId/orders", checkAuth, authrz, orderUpdate); 
 
 
  
