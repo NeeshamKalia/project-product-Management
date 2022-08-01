@@ -5,6 +5,7 @@ const {createUser, loginUser, getUserById, updateUserProfile} = require('../cont
 const {checkAuth, authrz} = require('../middleware/auth')
 const {createProduct,getProducts, productById, updateProduct, deleteProduct} = require('../controllers/productController')
 const {createCart, getCartById, updateCart, deleteCart} = require('../controllers/cartController')
+const {orderCreate, orderUpdate} = require('../controllers/orderController')
 //user's api
 router.post("/register",  createUser);
 router.post("/login", loginUser)
@@ -21,7 +22,9 @@ router.post("/users/:userId/cart",  createCart); //checkAuth, authrz,
 router.get("/users/:userId/cart", getCartById);  //checkAuth, authrz,
 //router.put("/users/:userId/cart",  updateCart);
 router.delete("/users/:userId/cart", deleteCart);  //checkAuth, authrz,
-
+// order api's
+router.post("/users/:userId/orders",  orderCreate); //checkAuth, authrz,
+router.put("/users/:userId/orders",  orderUpdate); //checkAuth, authrz,
 
 
  

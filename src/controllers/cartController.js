@@ -13,6 +13,7 @@ const createCart = async function (req,res){
         const userId = req.params.userId
         const body = req.body
     let {productId, quantity} = body 
+    quantity = Number(quantity)
 
 if(!validation.isValidRequestBody(body)){ return res.status(400).send({ status: false, message: "Please enter a valid body" }) }
 if(!validation.isValidObjectId(productId)){ return res.status(400).send({ status: false, message: "Please enter a valid product id" }) }
@@ -46,17 +47,17 @@ if(findThatCart){
     let existedItems = findThatCart.items
     for(let i in existedItems){
         if(existedItems[i].productId.toString() === productId){
-            existedItems.quantity += quantity
-        let updatedCart = {items: existedItems, totalPrice: price, quantity: existedItems.length}
+            existedItems[i].quantity += quantity
+        let updatedCart = {items: existedItems, totalPrice: price, totalItems: existedItems.length}
         
         
-        let newCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: price } }, { new: true }).select({"items._id":0})
+        let newCart = await cartModel.findOneAndUpdate({_id:findThatCart._id, userId: userId },updatedCart, { new: true }).select({"items._id":0})
         //let finalresult=await cartModel.findOne({_id:newCart._id}).select({"items._id":0})  
         return res.status(201).send({status: true, message:"Product added Successfully", data: newCart});
     }
 }
 existedItems.push({productId: productId, quantity: quantity});
-let updateCart = {items: existedItems, totalPrice: price, quantity: existedItems.length}
+let updateCart = {items: existedItems, totalPrice: price, totalItems: existedItems.length}
 let finalData = await cartModel.findOneAndUpdate({_id: findThatCart._id},updateCart,{new: true});
 return res.status(201).send({status: true, message:"Product added successfully", data: finalData});
       
@@ -97,7 +98,7 @@ if(cartId){
   //findThatCart.productId != productId => product doesn't exist in cart
   if(findThatCart.productId.toString() != productId)return res.status(404).send({status: false, message: "Product does not exist in cart"}) 
 if(removeProduct === 0){
-  let newAmount = findThatCart.totalPrice - product.price * findThatCart.items[(items.indexOf(quantity)]
+  //let newAmount = findThatCart.totalPrice - product.price * findThatCart.items[(items.indexOf(quantity)]
 
 }
 
