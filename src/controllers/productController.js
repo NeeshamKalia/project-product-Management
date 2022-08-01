@@ -44,6 +44,7 @@ if(currencyFormat != "₹"){
 if(!validation.isValid(style))  {
   return res.status(400).send({status:false, message: "style required"})
 }
+if(isFreeShipping){
 if(!validation.isValid(isFreeShipping))  {
   return res.status(400).send({status:false, message: "isFreeShipping is required"})
 }
@@ -51,30 +52,35 @@ if((isFreeShipping) != 'true' && isFreeShipping != 'false' ){
   
   return res.status(400).send({status:false, message: "isFreeShipping must be a boolean type"})
 }
+}
 if(installments){
   if (isNum(installments) === true){
-     if(installments <= 1){
-    return res.status(400).send({status:false, message: "number must be more than 1"})}
+     if(installments <= 1 || installments % 1 != 0 ){
+         
+          return res.status(400).send({status:false, message: "installments number must be more than 1& natural"})}
      }
   else {return res.status(400).send({status:false, message: "installments  be a natural number, more than 1"})}
     }
+  
+//if(installments % 1 != 0){return res.status(400).send({status:false, message: "installments  be a natural number"})}
+///availableSizes-
 if(!validation.isValid(availableSizes))  {return res.status(400).send({status:false, message: "required availableSizes "})}
 
-sizes = availableSizes.split(',').map(a => a.trim())
+sizes = availableSizes.split(',').map(a => a.trim().toUpperCase())
 
  for(let i = 0; i < sizes.length; i++) {
     if(!(["S", "XS","M","X", "L","XXL", "XL"] ).includes(sizes[i])){
       return res.send({status: false, message: "sizes should be from S, XS,M,X,L,XXL, XL"})
     }
  }
-
+//availableSizes = sizes
 if(!validation.isValidRequestBody(files)){
   return res.status(400).send({status:false, message: "productImage is required"})
 }
 if(files.length < 0){return res.status(400).send({status:false, message: "productImage needed" })} 
 productImage = await config.uploadFile(files[0])
 let newData = {title, description, price, currencyId, currencyFormat, productImage: productImage
-  , isFreeShipping, style, availableSizes, installments}
+  , isFreeShipping, style, availableSizes: sizes, installments}
 
 
 
@@ -101,24 +107,15 @@ const getProducts = async function (req, res) {
       return res.status(400).send({status: false, message: "Please enter name correctly"})
     }
     filter['title'] = {}
-    filter['title']['$regex'] = name;
+    filter['title']['$regex'] = name; 
     filter['title']['$options'] = 'i'
   }
  
-  if (Object.keys(queryData).length > 0) {
+  
      if (size) { let size1 = size.split(",").map(x => x.trim().toUpperCase()) 
      if (size1.map(x => validation.isValid(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be among S,XS,M,X,L,XXL,XL" }) 
-     filter.availableSizes = { $in: size1 } } }
-
-
-
-
-
-  /* if(size){
-    if(!validation.isValid(size)){ return res.status(400).send({ status: false, message: "Please enter a valid size" }) }
-    size = size.toUpperCase().split(',').map(a => a.trim()) 
-    filter['availableSizes'] = size;  
-  } */
+     filter.availableSizes = { $in: size1 } } 
+  
   if(priceGreaterThan){
     if(!validation.isValid(priceGreaterThan)){return res.status(400).send({ status: false, message: "Please enter a price greater than" }) }
     if(!(isNum(priceGreaterThan))){return res.status(400).send({ status: false, message: "Please enter a number in priceGreaterThan" })}
@@ -127,9 +124,8 @@ const getProducts = async function (req, res) {
     }
     filter['price']['$gt'] = Number(priceGreaterThan)
     
-  
-
   }
+  
   if(priceLessThan){
     if(!validation.isValid(priceLessThan)){return res.status(400).send({ status: false, message: "Please enter a valid priceLessThan" }) }
     if(!(isNum(priceLessThan))){return res.status(400).send({ status: false, message: "Please enter a number in priceGreaterThan"})}
@@ -194,7 +190,7 @@ if (!validation.isValidRequestBody(req.body))
     if(!product){ return res.status(404).send({status: false, message: "Product not found or already deleted"}) }
     
     if(title){
-      console.log(title)
+     // console.log(title)
      if(!validation.isValid(title))  {
        return res.status(400).send({status:false, message: "Title is required"})
      }
@@ -269,17 +265,18 @@ if (!validation.isValidRequestBody(req.body))
     //INSTALLMENTS VALIDATION
    if(installments){   
     if (isNum(installments) === true){
-         if(installments <= 1){
-        return res.status(400).send({status:false, message: "number must be more than 1"})}
+         if(installments <= 1 || installments % 1 != 0){
+        return res.status(400).send({status:false, message: "number must be natural,more than 1"})}
          }
       else {return res.status(400).send({status:false, message: "installments  be a natural number, more than 1"})}
+
       productUpdate.installments = installments
         }
       //SIZE VALIDATION
       if(availableSizes){
     if(!validation.isValid(availableSizes))  {return res.status(400).send({status:false, message: "required availableSizes "})}
     
-    sizes = availableSizes.split(',').map(a => a.trim())
+    sizes = availableSizes.split(',').map(a => a.trim().toUpperCase())
      let allSige=product.availableSizes 
      for(let i = 0; i < sizes.length; i++) 
      {
@@ -327,7 +324,7 @@ const deleteProduct = async function(req, res) {
     if(!product) {
       return res.status(404).send({status: false, message: "Product not found "})
     }
-    if(product['isDeleted'] == true){return res.status(404).send({status: false, message: "Product already deleted"})}
+    if(product['isDeleted'] == true){return res.status(400).send({status: false, message: "Product already deleted"})}
    let deleteProduct = await productModel.findOneAndUpdate({_id: productId},
     {$set: {isDeleted: true, deletedAt: Date.now()}},
     {new: true})

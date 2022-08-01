@@ -3,7 +3,7 @@ const validation = require('../utils/validation');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const isImage = require('is-image');
+//const isImage = require('is-image');
 const config = require('../utils/aws');
 
 const createUser = async function (req, res) {

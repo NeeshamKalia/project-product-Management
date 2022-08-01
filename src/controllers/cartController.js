@@ -26,17 +26,21 @@ if(!findThatProduct) { return res.status(404).send({ status: false, message: "pr
 //if cart already exists
 const findThatCart = await cartModel.findOne({userId: userId, isDeleted: false})
 if(!findThatCart){ 
+  let item = [];
+  
+  let productin = {productId: findThatProduct._id, quantity: quantity}
+  item.push(productin)
     const cart = {
         userId: userId,
-        items: [{productId: findThatProduct._id, quantity: quantity}],
+        items: item,
         
         totalPrice: findThatProduct.price * quantity,
         totalItems: 1 
     }
 
     let cartCreated = await cartModel.create(cart)
-    // let finalresult=await cartModel.findOne({_id:cartCreated._id}).select({items['_id']:0}) 
-    return res.status(201).send({status: true, message:"Success" , data: cartCreated}) }
+    let finalresult=await cartModel.findOne({_id:cartCreated._id}).select({"items._id":0})
+    return res.status(201).send({status: true, message:"Success" , data: finalresult}) }
 if(findThatCart){
     let price = findThatCart.totalPrice + (quantity * findThatProduct.price)
     let existedItems = findThatCart.items
@@ -45,9 +49,9 @@ if(findThatCart){
             existedItems.quantity += quantity
         let updatedCart = {items: existedItems, totalPrice: price, quantity: existedItems.length}
         
-        //let newCart = await cartModel.findOneAndUpdate({_id:findThatCart._id},{$inc:{}},{$set:updatedCart},{new: true})
-        let newCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: price } }, { new: true }) 
         
+        let newCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: price } }, { new: true }).select({"items._id":0})
+        //let finalresult=await cartModel.findOne({_id:newCart._id}).select({"items._id":0})  
         return res.status(201).send({status: true, message:"Product added Successfully", data: newCart});
     }
 }
@@ -55,14 +59,7 @@ existedItems.push({productId: productId, quantity: quantity});
 let updateCart = {items: existedItems, totalPrice: price, quantity: existedItems.length}
 let finalData = await cartModel.findOneAndUpdate({_id: findThatCart._id},updateCart,{new: true});
 return res.status(201).send({status: true, message:"Product added successfully", data: finalData});
-         // if(product) => product ++, price ++, quantity +=1
-         //(!product) => items.push(productId, quanity), price ++ quantiy +=1
-         //return findThatCart
-     /* for(n in findThatCart.items){
-        if(n === productId){
-                console.log(n, quantity, quanity,
-                    items.push(productId, quanity)
- */
+      
                 }
 }catch (error) {
         res.status(500).send({ status: false, message: error.message })
@@ -84,20 +81,25 @@ const updateCart = async function (req, res) {
 
     if(!validation.isValidObjectId(productId)){return res.status(400).send({status: false, message: 'Invalid product ID'})};
 
-      const product = await productModel.findOne({id: req.params.productId, isDeleted:false});
+      const product = await productModel.findOne({_id:productId, isDeleted:false});
       if(!product){
-        return res.status(400).send({status: false, message: "Product doesn't exists"})}
-
+        return res.status(400).send({status: false, message: "Product doesn't exists or deleted"})}
+if(cartId){
      if(!validation.isValidObjectId(cartId)){return res.status(400).send({status: false, message: 'Invalid cart ID'})};
-    const findThatCart = await cartModel.findOne({_id: cartId});
+    const findThatCart = await cartModel.findOne({userId: userId});
     if(!findThatCart){ return res.status(400).send({status: false, message: "this cart  doesn't exists"})}
+  }
 
   if(!validation.isValid(removeProduct)){return res.status(400).send({status: false, message: "removeProduct invalid"})}
   if(!(isNum(removeProduct)))return res.status(400).send({status: false, message: "removeProduct must be number"})
   if(!((removeProduct == 1) || (removeProduct == 0)))return res.status(400).send({status: false, message: "removeProduct can be 0 or 1"})
 
   //findThatCart.productId != productId => product doesn't exist in cart
+  if(findThatCart.productId.toString() != productId)return res.status(404).send({status: false, message: "Product does not exist in cart"}) 
+if(removeProduct === 0){
+  let newAmount = findThatCart.totalPrice - product.price * findThatCart.items[(items.indexOf(quantity)]
 
+}
 
 
 
@@ -116,9 +118,9 @@ const getCartById = async function(req,res){
          const findUser = await userModel.findOne({_id:userId, isDeleted:false})
         if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};
      
-    const validCart = await cartModel.findOne({userId: userId})
+    const validCart = await cartModel.findOne({userId: userId}).select({"items._id":0})
     if(!validCart){return res.status(400).send({status: false, message: 'cart not found'});}
-
+    
     return res.status(200).send({status: true, message: "Success", data: validCart})
     }catch (error) {
         res.status(500).send({ status: false, message: error.message })
