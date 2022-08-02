@@ -119,7 +119,7 @@ if (!validation.isValid(billing.street)) {
 if (!validation.isValid(billing.city)) {
   return res.status(400).send({ status: false, message: "billing city is required" })
 }
-if (!/^[1-9][0-9]{5}$/.test(billing.city)) {
+if (!/^[a-zA-Z]+$/.test(billing.city)) {
   return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
 }
 

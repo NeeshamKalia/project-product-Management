@@ -14,7 +14,7 @@ const createCart = async function (req,res){
         const body = req.body
     let {productId, quantity} = body 
     quantity = Number(quantity)
-
+if(!quantity){quantity = 1}
 if(!validation.isValidRequestBody(body)){ return res.status(400).send({ status: false, message: "Please enter a valid body" }) }
 if(!validation.isValidObjectId(productId)){ return res.status(400).send({ status: false, message: "Please enter a valid product id" }) }
 if(!validation.isValid(quantity)){ return res.status(400).send({ status: false, message: "Please enter a valid quantity" }) }
@@ -46,7 +46,7 @@ if(findThatCart){
     let price = findThatCart.totalPrice + (quantity * findThatProduct.price)
     let existedItems = findThatCart.items
     for(let i in existedItems){
-        if(existedItems[i].productId === productId){  //toString()
+        if(existedItems[i].productId.toString() === productId){  //toString()
             existedItems[i].quantity += quantity
         let updatedCart = {items: existedItems, totalPrice: price, totalItems: existedItems.length}
         
@@ -119,7 +119,7 @@ let totalAmount = findThatCart.totalPrice - product.price
 let itemsArr = findThatCart.items
 
 for (i in itemsArr) {
-    if (itemsArr[i].productId == productId) {  //tostring 
+    if (itemsArr[i].productId.toString() == productId) {  //tostring 
         itemsArr[i].quantity = itemsArr[i].quantity - 1
 
         if (itemsArr[i].quantity < 1) {
@@ -172,9 +172,9 @@ const deleteCart = async function(req,res){
     
     const validCart = await cartModel.findOne({userId: userId, totalPrice: {$gt:0}})
     if(!validCart){return res.status(404).send({status: false, message: 'cart not found or deleted'});}
-    console.log(validCart);
+   // console.log(validCart);
     const cartDelete = await cartModel.findOneAndUpdate({userId: userId}, {$set: {totalPrice: 0, totalItems: 0, items:[]}}, {new: true})
-   return res.status(200).send({status: true, message: "Cart deleted Successfully"})
+   return res.status(204
 
 
 
