@@ -85,7 +85,7 @@ let newData = {title, description, price, currencyId, currencyFormat, productIma
 
 
 const savedData = await productModel.create(newData);
-  return res.status(201).send({ status: true, message: "product created successfully", data: savedData, });
+  return res.status(201).send({ status: true, message: "Success", data: savedData, });
     }catch (error) {
       res.status(500).send({ status: false, message: error.message })
     }
@@ -114,7 +114,7 @@ const getProducts = async function (req, res) {
   
      if (size) { let size1 = size.split(",").map(x => x.trim().toUpperCase()) 
      if (size1.map(x => validation.isValid(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be among S,XS,M,X,L,XXL,XL" }) 
-     filter.availableSizes = { $in: size1 } } 
+     filter['availableSizes'] = { $in: size1 } } 
   
   if(priceGreaterThan){
     if(!validation.isValid(priceGreaterThan)){return res.status(400).send({ status: false, message: "Please enter a price greater than" }) }
@@ -320,11 +320,11 @@ const deleteProduct = async function(req, res) {
     if (!(validation.isValidObjectId(productId))){
       return res.status(400).send({status: false, message: "productId not valid"})
     }
-    let product = await productModel.findById(productId)
+    let product = await productModel.findOne({_id: productId, isDeleted: false})
     if(!product) {
-      return res.status(404).send({status: false, message: "Product not found "})
+      return res.status(404).send({status: false, message: "Product not found or deleted"})
     }
-    if(product['isDeleted'] == true){return res.status(400).send({status: false, message: "Product already deleted"})}
+    
    let deleteProduct = await productModel.findOneAndUpdate({_id: productId},
     {$set: {isDeleted: true, deletedAt: Date.now()}},
     {new: true})
