@@ -93,7 +93,7 @@ const orderUpdate = async (req,res) => {
                 const statusUpdate = await orderModel.findOneAndUpdate({_id: orderId}, {$set:{status: status}},{new: true});
                 return res.status(200).send({status: true, message: "Updated order Successfully.", data: statusUpdate});
           }
-          if(status == 'completed'){return res.status(400).send({ status: false, message: "order already completed"});}
+          if(status == 'pending'){return res.status(400).send({ status: false, message: "order already in pending"});}
           if(status == 'cancelled'){return res.status(400).send({ status: false, message: "order is already cancelled"});}
    
 

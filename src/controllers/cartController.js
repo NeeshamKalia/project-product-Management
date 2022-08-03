@@ -14,10 +14,14 @@ const createCart = async function (req,res){
         const body = req.body
     let {productId, quantity} = body 
     quantity = Number(quantity)
+if(quantity){
+    if(!validation.isValid(quantity)){ return res.status(400).send({ status: false, message: "Please enter a valid quantity" }) }
+    if(!isNum(quantity)){ return res.status(400).send({ status: false, message: "Please enter quantity in num" }) }
+        }
 if(!quantity){quantity = 1}
 if(!validation.isValidRequestBody(body)){ return res.status(400).send({ status: false, message: "Please enter a valid body" }) }
 if(!validation.isValidObjectId(productId)){ return res.status(400).send({ status: false, message: "Please enter a valid product id" }) }
-if(!validation.isValid(quantity)){ return res.status(400).send({ status: false, message: "Please enter a valid quantity" }) }
+
 //if user exists
 const findThatUser = await userModel.findOne({_id: userId}) 
 if(!findThatUser){ return res.status(404).send({ status: false, message: "user not found" }) }
@@ -25,7 +29,7 @@ if(!findThatUser){ return res.status(404).send({ status: false, message: "user n
 const findThatProduct = await productModel.findOne({_id: productId, isDeleted: false})
 if(!findThatProduct) { return res.status(404).send({ status: false, message: "product not found or deleted" }); }
 //if cart already exists
-const findThatCart = await cartModel.findOne({userId: userId, isDeleted: false})
+const findThatCart = await cartModel.findOne({userId: userId})
 if(!findThatCart){ 
   let item = [];
   
@@ -51,14 +55,16 @@ if(findThatCart){
         let updatedCart = {items: existedItems, totalPrice: price, totalItems: existedItems.length}
         
         
-        let newCart = await cartModel.findOneAndUpdate({_id:findThatCart._id, userId: userId },updatedCart, { new: true }).select({"items._id":0})
+        let newCart = await cartModel.findOneAndUpdate({_id:findThatCart._id, userId: userId },updatedCart, { new: true }).select({"items._id":0})  
+
         //let finalresult=await cartModel.findOne({_id:newCart._id}).select({"items._id":0})  
         return res.status(201).send({status: true, message:"Product added Successfully", data: newCart});
     }
 }
 existedItems.push({productId: productId, quantity: quantity});
 let updateCart = {items: existedItems, totalPrice: price, totalItems: existedItems.length}
-let finalData = await cartModel.findOneAndUpdate({_id: findThatCart._id},updateCart,{new: true});
+let finalData = await cartModel.findOneAndUpdate({_id: findThatCart._id},updateCart,{new: true}).select({"items._id":0})
+//let finalresult=await cartModel.findOne({_id:findThatCart._id}).select({"items._id":0})
 return res.status(201).send({status: true, message:"Product added successfully", data: finalData});
       
                 }
@@ -102,14 +108,14 @@ if(cartId){
      return res.status(400).send({ status: false, message: "This product does not exists in the cart" })
  }
 
-  findQuantity = findThatCart.items.find(x => x.productId.toString() == productId);
+  findQuantity = findThatCart.items.find(x => x.productId.toString() === productId);
   if (removeProduct === 0) {
     let totalAmount = findThatCart.totalPrice - (product.price * findQuantity.quantity) // substract the amount of product*quantity
 
-    await cartModel.findOneAndUpdate({ _id: cartId }, { $pull: { items: { productId: productId } } }, { new: true })
+    await cartModel.findOneAndUpdate({userId: userId }, { $pull: { items: { productId: productId } } }, { new: true })
 
     let quantity = findThatCart.totalItems - 1
-    let data = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { totalPrice: totalAmount, totalItems: quantity } }, { new: true }) //update the cart with total items and totalprice
+    let data = await cartModel.findOneAndUpdate({ userId: userId}, { $set: { totalPrice: totalAmount, totalItems: quantity } }, { new: true }) //update the cart with total items and totalprice
 
     return res.status(200).send({ status: true, message: `${productId} is been removed`, data: data })
 }
@@ -119,14 +125,14 @@ let totalAmount = findThatCart.totalPrice - product.price
 let itemsArr = findThatCart.items
 
 for (i in itemsArr) {
-    if (itemsArr[i].productId.toString() == productId) {  //tostring 
+    if (itemsArr[i].productId.toString() === productId) {  //tostring 
         itemsArr[i].quantity = itemsArr[i].quantity - 1
 
         if (itemsArr[i].quantity < 1) {
-            await cartModel.findOneAndUpdate({ _id: cartId }, { $pull: { items: { productId: productId } } }, { new: true })
+            await cartModel.findOneAndUpdate({ userId: userId}, { $pull: { items: { productId: productId } } }, { new: true })
             let quantity = findThatCart.totalItems - 1
 
-            let data = await cartModel.findOneAndUpdate({ _id: cartId }, { $set: { totalPrice: totalAmount, totalItems: quantity } },
+            let data = await cartModel.findOneAndUpdate({ userId: userId }, { $set: { totalPrice: totalAmount, totalItems: quantity } },
                 { new: true }) //update the cart with total items and totalprice
 
             return res.status(200).send({ status: true, message: `No such quantity/product exist in cart`, data: data })
@@ -174,7 +180,7 @@ const deleteCart = async function(req,res){
     if(!validCart){return res.status(404).send({status: false, message: 'cart not found or deleted'});}
    // console.log(validCart);
     const cartDelete = await cartModel.findOneAndUpdate({userId: userId}, {$set: {totalPrice: 0, totalItems: 0, items:[]}}, {new: true})
-   return res.status(204
+   return res.status(204).send()
 
 
 
