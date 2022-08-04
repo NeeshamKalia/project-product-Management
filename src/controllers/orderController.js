@@ -15,6 +15,7 @@ const orderCreate = async (req,res) => {
    let userExists = await userModel.findOne({_id: userId})
    if(!userExists) {return res.status(404).send({status: false, message: "user not found"})}
    if(cancellable) {
+    if(!validation.isValid(cancellable)){return res.status(status).send({status: false, message: "cancellable invalid"})}
         if(typeof cancellable != 'boolean') {return res.status(400).send({status: false, message: "cancellable must be boolean"})}
    }
    if(status){
@@ -72,7 +73,7 @@ const orderUpdate = async (req,res) => {
       if(!user){return res.status(404).send({status: false   , message: "User not found."});}
       let order = await orderModel.findOne({_id: orderId}); 
       if(!order){return res.status(404).send({status: false , message: "Order not found."});}   
-      if(order.userId != userId){return res.status(404).send({status: false , message: "order not matching user."});}
+      if(order.userId != userId){return res.status(400).send({status: false , message: "order not matching user."});}
       if(order['cancellable'] == 'true'){
         if(order['status'] == 'pending'){
             let statusUpdate = await orderModel.findOneAndUpdate({_id: orderId}, {$set: {status: status}}, {new: true});
@@ -95,7 +96,11 @@ const orderUpdate = async (req,res) => {
                 return res.status(200).send({status: true, message: "Success", data: statusUpdate});
           }
           if(status == 'pending'){return res.status(400).send({ status: false, message: "order already in pending"});}
-          if(status == 'cancelled'){return res.status(400).send({ status: false, message: "order is already cancelled"});}
+          if(status == 'cancelled'){
+            if(order['cancellable'] == 'false'){return res.status(400).send({ status: false, message: "order is already cancelled"});}
+            else{const Update = await orderModel.findOneAndUpdate({_id: orderId}, {$set:{status: status}},{new: true});
+            return res.status(200).send({status: true, message: "Success", data: Update})}; 
+          }
    
 
     }
