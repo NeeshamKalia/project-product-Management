@@ -10,7 +10,7 @@ const {orderCreate, orderUpdate} = require('../controllers/orderController')
 router.post("/register",  createUser);
 router.post("/login", loginUser)
 router.get("/user/:userId/profile", checkAuth, authrz, getUserById)
-router.put("/user/:userId/profile", checkAuth, authrz, updateUserProfile)
+router.put("/user/:userId/profile",  updateUserProfile) //checkAuth, authrz,
 //product api's
 router.post("/products",  createProduct);
 router.get("/products",  getProducts);
