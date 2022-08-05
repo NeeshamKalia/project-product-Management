@@ -8,10 +8,11 @@ const config = require('../utils/aws');
 
 const createUser = async function (req, res) {
       try {
-      if(!validation.isValidRequestBody(req.body)) { return res.status(400).send({ status: false, message: "Please enter details in the request Body" }) } 
-      let data = req.body
+        let data = req.body
       let files = req.files
-    let {fname,lname,email,profileImage,phone,password,address} = req.body;
+      if(!validation.isValidRequestBody(data)) { return res.status(400).send({ status: false, message: "Please enter details in the request " }) } 
+      
+    let {fname,lname,email,profileImage,phone,password,address} = data
 
     //validations--
    //fname
@@ -207,7 +208,7 @@ catch (err) {
 
 const updateUserProfile = async function (req, res) {
     try {
-      if (!validation.isValidRequestBody(req.body)){ return res.status(400).send({ status: false, message: "Please enter details in the request Body" }) } 
+      if (!validation.isValidRequestBody(req.body) && !(req.files)){ return res.status(400).send({ status: false, message: "Please enter details in the request Body" }) } 
       let userId = req.params.userId, body = req.body
       
       const findUserProfile = await userModel.findOne({_id:userId})
