@@ -56,20 +56,23 @@ const createUser = async function (req, res) {
   }  
   
 profileImage = await config.uploadFile(files[0])
+//address
 
-  //address
-  let shippingAddressToString = JSON.stringify(address)
-   address = JSON.parse(shippingAddressToString) 
-  if (!address) {
+if (!address) {
     return res.status(400).send({ status: false, message: "address is required" })
 }
 
+  let shippingAddressToString = JSON.stringify(address)
+   address = JSON.parse(shippingAddressToString) 
+ 
 
 let { shipping, billing } = data.address        //destructuring
 if (!validation.isValidRequestBody(data.address)){
     return res.status(400).send({status:false,message:"No keys are present in address"})
 }
-if (!shipping) {
+
+
+if (!validation.isValidIncludes("shipping", data.address)) {  
   return res.status(400).send({ status: false, message: "shipping is required" })
 }
 
@@ -98,18 +101,6 @@ if (!validation.isValid(shipping.pincode)) {
 }
 //billing address
 
-if (!billing) {
-  return res.status(400).send({ status: false, message: "billing is required" })
-}
-
-if (typeof billing != "object") {
-  return res.status(400).send({ status: false, message: "billing should be an object" })
-}
- //Billing Field validation==>
-if (!validation.isValid(billing.street)) {
-  return res.status(400).send({ status: false, message: "billing street is required" })
-}
-
 if (!validation.isValid(billing.city)) {
   return res.status(400).send({ status: false, message: "billing city is required" })
 }
@@ -125,7 +116,7 @@ if (!validation.isValid(billing.pincode)) {
 
 if (!/^[1-9][0-9]{5}$/.test(Number(billing.pincode))) {
   return res.status(400).send({ status: false, message: "Enter a valid  billing pincode"}); }
-
+ 
 const saltRounds = 10;
 const encryptedPassword = await bcrypt.hash(password, saltRounds) //encrypting password by using bcrypt.
 userData = {
@@ -280,7 +271,9 @@ if(password.includes(" ")){return res.status(400).send({status: false, message: 
 
 
           if (validation.isValidIncludes("address", req.body)) {
-            //console.log(address);
+            if (!validation.isValid(address)) { return res.status(400).send({ status: false, message: "Please enter a valid address" }) }
+            let shippingAddressToString = JSON.stringify(address)
+            address = JSON.parse(shippingAddressToString) 
             if (typeof address != "object") {
               //console.log(typeof address)
               return res.status(400).send({ status: false, message: "address should be an object" }) }
