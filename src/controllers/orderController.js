@@ -33,9 +33,11 @@ const orderCreate = async (req,res) => {
    if(cartLookUp.items.length === 0) {return res.status(400).send({status : false, message: "no items found in that cart"});}
 
 //quantity = itemsarray's =  object.quantity === all add.
-let adding =(a,b) => a + b;
-let totalQuantity = cartLookUp.items.map(x => x.quantity).reduce(adding)
-  
+let sum = 0;
+for (let i = 0; i < cartDetails.items.length; i++) {
+    sum = sum + cartDetails.items[i].quantity
+}
+let totalQuantity = sum  
 const order = {
     userId: userId,
     cancellable,
@@ -49,7 +51,7 @@ const order = {
 let finalData = await orderModel.create(order)
 let clearCart = await cartModel.findOneAndUpdate({userId: userId}, {$set:{items: [], totalPrice: 0, totalItems:0}})
 let finalresult=await orderModel.findOne({userId: userId}).select({"items._id":0})
-return res.status(200).send({status: true, message: "Success", data: finalresult})
+return res.status(201).send({status: true, message: "Success", data: finalresult})
     } catch (error) {
         res.status(500).send({ status: false, message: error.message })
       }
