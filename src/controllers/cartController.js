@@ -160,7 +160,7 @@ const getCartById = async function(req,res){
          const findUser = await userModel.findOne({_id:userId, isDeleted:false})
         if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};
      
-    const validCart = await cartModel.findOne({userId: userId, totalPrice: {$gt:0}}).select({"items._id":0})
+    const validCart = await cartModel.findOne({userId: userId}).select({"items._id":0}) //, totalPrice: {$gt:0}
     if(!validCart){return res.status(400).send({status: false, message: 'cart not found or deleted'});}
     
     return res.status(200).send({status: true, message: "Success", data: validCart})
@@ -177,10 +177,10 @@ const deleteCart = async function(req,res){
         if(!findUser){return res.status(404).send({status: false, message: 'User not found'})};  
     
     const validCart = await cartModel.findOne({userId: userId, totalPrice: {$gt:0}})
-    if(!validCart){return res.status(404).send({status: false, message: 'cart not found or deleted'});}
+    if(!validCart){return res.status(404).send({status: false, message: 'cart not found or already deleted'});}
    // console.log(validCart);
     const cartDelete = await cartModel.findOneAndUpdate({userId: userId}, {$set: {totalPrice: 0, totalItems: 0, items:[]}}, {new: true})
-   return res.status(204).send()
+   return res.status(204).send({data: cartDelete})
 
 
 

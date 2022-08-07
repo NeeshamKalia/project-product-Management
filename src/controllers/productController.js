@@ -192,7 +192,7 @@ if (!validation.isValidRequestBody(req.body))
     if(title){
      // console.log(title)
      if(!validation.isValid(title))  {
-       return res.status(400).send({status:false, message: "Title is required"})
+       return res.status(400).send({status:false, message: "Title invalid"})
      }
 
     

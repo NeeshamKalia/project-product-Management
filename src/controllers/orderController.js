@@ -49,7 +49,7 @@ const order = {
 let finalData = await orderModel.create(order)
 let clearCart = await cartModel.findOneAndUpdate({userId: userId}, {$set:{items: [], totalPrice: 0, totalItems:0}})
 let finalresult=await orderModel.findOne({userId: userId}).select({"items._id":0})
-return res.status(201).send({status: true, message: "Success", data: finalresult})
+return res.status(200).send({status: true, message: "Success", data: finalresult})
     } catch (error) {
         res.status(500).send({ status: false, message: error.message })
       }
@@ -76,7 +76,7 @@ const orderUpdate = async (req,res) => {
       if(order.userId != userId){return res.status(400).send({status: false , message: "order not matching user."});}
       if(order['cancellable'] == 'true'){
         if(order['status'] == 'pending'){
-            let statusUpdate = await orderModel.findOneAndUpdate({_id: orderId}, {$set: {status: status}}, {new: true});
+            let statusUpdate = await orderModel.findOneAndUpdate({_id: orderId}, {$set: {status: status}}, {new: true}).select({"items._id":0});
             return res.status(200).send({ status: false, message:"Success", data: statusUpdate});
         } 
         if(order['status'] == 'completed'){return res.status(400).send({status: false   , message: "order already completed."});}
@@ -92,7 +92,7 @@ const orderUpdate = async (req,res) => {
     if(order['status'] == 'pending'){
           if(status){
             if(status == 'completed'){
-                const statusUpdate = await orderModel.findOneAndUpdate({_id: orderId}, {$set:{status: status}},{new: true});
+                const statusUpdate = await orderModel.findOneAndUpdate({_id: orderId}, {$set:{status: status}},{new: true}).select({"items._id":0});
                 return res.status(200).send({status: true, message: "Success", data: statusUpdate});
           }
           if(status == 'pending'){return res.status(400).send({ status: false, message: "order already in pending"});}

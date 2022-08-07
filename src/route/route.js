@@ -10,7 +10,7 @@ const {orderCreate, orderUpdate} = require('../controllers/orderController')
 router.post("/register",  createUser);
 router.post("/login", loginUser)
 router.get("/user/:userId/profile", checkAuth, authrz, getUserById)
-router.put("/user/:userId/profile",  updateUserProfile) //checkAuth, authrz,
+router.put("/user/:userId/profile",  updateUserProfile) 
 //product api's
 router.post("/products",  createProduct);
 router.get("/products",  getProducts);
@@ -23,9 +23,8 @@ router.get("/users/:userId/cart", checkAuth, authrz,getCartById);
 router.put("/users/:userId/cart",checkAuth, authrz,  updateCart); 
 router.delete("/users/:userId/cart", checkAuth, authrz,deleteCart);  
 // order api's
-router.post("/users/:userId/orders", checkAuth, authrz, orderCreate); 
-router.put("/users/:userId/orders", checkAuth, authrz, orderUpdate); 
-
+router.post("/users/:userId/orders",checkAuth, authrz,  orderCreate); //checkAuth, authrz,
+router.put("/users/:userId/orders",checkAuth, authrz,  orderUpdate); 
 
  
 

@@ -14,14 +14,10 @@ const checkAuth = function (req, res, next) {
           let decodedToken = jwt.verify(bearerToken, "functionup-radon");
           if (decodedToken.length ==0){
             return res.status(404).send({ status: false, message: "token is not valid" })};
-           /* if (Date.now() > bearerToken.exp * 1000) {
-            return res
-              .status(401)
-              .send({ status: false, message: "access expired" }); //checking if the token is expired */
+          
            
           
-          //req.userId = decodedToken.id;
-          //console.log(decodedToken.userId)
+          
           next();
         
            }
