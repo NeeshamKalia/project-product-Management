@@ -96,7 +96,7 @@ if (!validation.isValid(shipping.pincode)) {
 }
 //pincode
 
- if (!/^\d{6}$/.test(Number(shipping.pincode))) {
+ if (!/^[1-9][0-9]{5}$/.test(Number(shipping.pincode))) {
   return res.status(400).send({ status: false, message: "enter valid shipping pincode" });
 }
 //billing address
@@ -304,7 +304,7 @@ if(password.includes(" ")){return res.status(400).send({status: false, message: 
                         if (!validation.isValid(address.shipping.pincode)) {
                             return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide shipping address's pincode" });
                         }
-                        if (!/^\d{6}$/.test(address.shipping.pincode)) {
+                        if (!/^[1-9][0-9]{5}$/.test(address.shipping.pincode)) {
                           return res.status(400).send({ status: false, message: "enter valid shipping pincode"});
                         } 
                     }
@@ -349,7 +349,7 @@ if(password.includes(" ")){return res.status(400).send({status: false, message: 
                         if (!validation.isValid(address.billing.pincode)) {
                             return res.status(400).send({ status: false, message: " Invalid request parameters. Please provide billing address's pincode" });
                         }
-                        if (!/^\d{6}$/.test(address.billing.pincode)) {
+                        if (!/^[1-9][0-9]{5}$/.test(address.billing.pincode)) {
                           return res.status(400).send({ status: false, message: "enter valid billing pincode"});
                         } 
                     }
